@@ -2,7 +2,7 @@ from telethon import TelegramClient, events
 from telethon.sessions import StringSession
 import os
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(dotenv_path="/root/envs/dnk_publisher.env")
 
 api_id = int(os.environ["API_ID"])
 api_hash = os.environ["API_HASH"]
