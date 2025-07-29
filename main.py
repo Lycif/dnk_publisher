@@ -5,7 +5,7 @@ api_id = 28774428
 api_hash = 'a21dbda93eaa482f8fc5400eec247cbf'
 session_name = 'main'
 
-SOURCE_CHANNEL_ID = 1002707233772
+source_channel_id = 1002707233772
 TARGET_CHAT_ID = -1002725548194
 
 EMOJI_ID = 5204394597651871345
