@@ -1,51 +1,35 @@
-import os
 from telethon import TelegramClient, events
-from dotenv import load_dotenv
-import requests
+from telethon.tl.types import MessageEntityCustomEmoji, MessageEntityTextUrl
 
-load_dotenv()
+api_id = 28774428
+api_hash = 'a21dbda93eaa482f8fc5400eec247cbf'
+session_name = 'main'
 
-API_ID = int(os.getenv("API_ID"))
-API_HASH = os.getenv("API_HASH")
-WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://your-n8n-webhook-url")
+SOURCE_CHANNEL_ID = -1002707233772
+TARGET_CHAT_ID = -1002725548194
 
-# Создание клиента
-client = TelegramClient("dnk_session", API_ID, API_HASH)
+EMOJI_ID = 5204394597651871345
+LINK = "https://t.me/dnk_news"
+TEXT = "ДНК * Україна 👈 Підписатися"
 
-# Список каналов для мониторинга (можно использовать username или ID)
-TARGET_CHANNELS = [
-    "radnykukr", "kpszsu", "spravdi", "kiev_pravyy_bereg", "TCH_channel",
-    "UaOnlii", "insiderUKR", "censor_net", "dsns_telegram",
-    "KyivCityOfficial", "UA_National_Police", "truexakhersonua", "kiev_svet"
-]
+client = TelegramClient(session_name, api_id, api_hash)
 
-KEYWORDS = [
-    "тривога", "удар", "ракета", "ППО", "дрон", "Shahed", "вибух", "запуск",
-    "Іскандер", "прильот", "обстріл", "загроза"
-]
-
-@client.on(events.NewMessage)
+@client.on(events.NewMessage(chats=SOURCE_CHANNEL_ID))
 async def handler(event):
-    if not event.message.message:
-        return
-
-    sender = await event.get_chat()
-    sender_username = getattr(sender, 'username', None)
-
-    if sender_username not in TARGET_CHANNELS:
-        return
-
-    text = event.message.message.lower()
-    if any(k in text for k in KEYWORDS):
-        print(f"[MATCH] From @{sender_username}: {event.message.message[:60]}...")
-        try:
-            requests.post(WEBHOOK_URL, json={
-                "channel": sender_username,
-                "message": event.message.message
-            })
-        except Exception as e:
-            print(f"Webhook error: {e}")
+    try:
+        message = event.message
+        await client.send_message(TARGET_CHAT_ID, message, file=message.media)
+        await client.send_message(
+            TARGET_CHAT_ID,
+            TEXT,
+            entities=[
+                MessageEntityCustomEmoji(offset=4, length=1, document_id=EMOJI_ID),
+                MessageEntityTextUrl(offset=0, length=len(TEXT), url=LINK)
+            ]
+        )
+    except Exception as e:
+        print(f"❌ Ошибка: {e}")
 
 client.start()
-print("✅ DNK userbot is running...")
+print("✅ Бот запущен.")
 client.run_until_disconnected()
